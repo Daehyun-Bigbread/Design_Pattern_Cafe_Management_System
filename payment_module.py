@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-# Strategy 패턴: 결제 수단별 결제 처리
+# 결제 전략 패턴 정의
 class PaymentStrategy(ABC):
     @abstractmethod
     def pay(self, amount):
@@ -18,7 +18,7 @@ class GiftPayment(PaymentStrategy):
     def pay(self, amount):
         print(f"Paying {amount} using Gift Card")
 
-# Factory 패턴: 결제 수단 객체 생성
+# 결제 전략 생성 팩토리
 class PaymentFactory:
     def create_payment(self, method):
         if method == "card":
@@ -28,9 +28,9 @@ class PaymentFactory:
         elif method == "gift":
             return GiftPayment()
         else:
-            raise ValueError("Unknown payment method")
+            raise ValueError(f"Unknown payment method: {method}")
 
-# Singleton 패턴: 재무제표 관리
+# 싱글톤 패턴을 이용한 재무 상태 클래스
 class FinancialStatementSingleton:
     _instance = None
 
@@ -44,19 +44,21 @@ class FinancialStatementSingleton:
         self.total_amount += amount
         print(f"Updated financial statement: total amount is now {self.total_amount}")
 
-# Observer 패턴: 결제 내역 관찰
+# 옵저버 패턴을 위한 추상 클래스
 class PaymentObserver(ABC):
     @abstractmethod
-    def update(self, amount, method):
+    def update(self, amount):
         pass
 
+# 재무 상태 옵저버 클래스
 class FinancialStatementObserver(PaymentObserver):
     def __init__(self):
         self.financial_statement = FinancialStatementSingleton()
 
-    def update(self, amount, method):
+    def update(self, amount):
         self.financial_statement.update(amount)
 
+# 결제 클래스
 class Payment:
     def __init__(self):
         self.observers = []
@@ -64,34 +66,10 @@ class Payment:
     def add_observer(self, observer):
         self.observers.append(observer)
 
-    def notify_observers(self, amount, method):
+    def notify_observers(self, amount):
         for observer in self.observers:
-            observer.update(amount, method)
+            observer.update(amount)
 
     def make_payment(self, amount, payment_strategy):
         payment_strategy.pay(amount)
-        self.notify_observers(amount, payment_strategy)
-
-# 시스템 동작 예제
-if __name__ == "__main__":
-    # 결제 팩토리 생성
-    payment_factory = PaymentFactory()
-    
-    # 재무제표 관찰자 생성
-    financial_observer = FinancialStatementObserver()
-    
-    # 결제 시스템 생성
-    payment_system = Payment()
-    payment_system.add_observer(financial_observer)
-    
-    # 카드 결제 예제
-    card_payment = payment_factory.create_payment("card")
-    payment_system.make_payment(100, card_payment)
-    
-    # 현금 결제 예제
-    cash_payment = payment_factory.create_payment("cash")
-    payment_system.make_payment(50, cash_payment)
-    
-    # 기프트 카드 결제 예제
-    gift_payment = payment_factory.create_payment("gift")
-    payment_system.make_payment(30, gift_payment)
+        self.notify_observers(amount)
