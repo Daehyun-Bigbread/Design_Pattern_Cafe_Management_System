@@ -1,15 +1,17 @@
+let totalAmount = 0;
+let totalSales = 0;
+let drinkCounts = {
+    coffee: 0,
+    latte: 0,
+    greenTea: 0,
+    blackTea: 0
+};
+
 const drinkPrices = {
     coffee: 5,
     latte: 6,
     greenTea: 4,
     blackTea: 4
-};
-
-const drinkIngredients = {
-    coffee: ['coffee bean: 1', 'water: 200ml'],
-    latte: ['coffee bean: 1', 'milk: 100ml', 'water: 100ml'],
-    greenTea: ['green tea powder: 1', 'water: 200ml'],
-    blackTea: ['black tea: 1', 'water: 200ml']
 };
 
 function setPaymentMethod(method) {
@@ -25,12 +27,23 @@ function makePayment() {
         return;
     }
 
+    if (amount < totalAmount) {
+        alert('Insufficient amount to cover the total price.');
+        return;
+    }
+
+    const paymentDetails = {
+        method: method,
+        amount: totalAmount,
+        drinkCounts: drinkCounts
+    };
+
     fetch('/make_payment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ method: method, amount: amount })
+        body: JSON.stringify(paymentDetails)
     })
     .then(response => response.json())
     .then(data => {
@@ -39,13 +52,38 @@ function makePayment() {
             if (data.message === "Payment processed successfully") {
                 const paymentHistoryList = document.getElementById('payment-history-list');
                 const listItem = document.createElement('li');
-                listItem.textContent = `Paid ${amount} using ${method}`;
-                paymentHistoryList.appendChild(listItem);
+                
+                let drinksPurchased = Object.entries(drinkCounts)
+                    .filter(([drink, count]) => count > 0)
+                    .map(([drink, count]) => `${count} ${drink.charAt(0).toUpperCase() + drink.slice(1)}`)
+                    .join(', ');
+                
+                if (drinksPurchased !== '') {
+                    listItem.textContent = `Paid ${totalAmount}$ using ${method} | Buy ${drinksPurchased}`;
+                    paymentHistoryList.appendChild(listItem);
+                }
+                
+                // Update total sales
+                totalSales = data.total_sales;
+                document.getElementById('total-sales').textContent = totalSales;
+                
+                // Reset total amount after payment
+                totalAmount = 0;
+                document.getElementById('total-amount').value = totalAmount;
+                
+                // Increment drink counts after payment
+                const selectedDrinks = Object.keys(drinkCounts);
+                for (const drink of selectedDrinks) {
+                    drinkCounts[drink] += parseInt(document.getElementById(drink).value);
+                }
+                
+                updateDrinkHistory();
             }
         }
     })
     .catch(error => console.error('Error:', error));
 }
+
 
 function setInventoryItem(item) {
     document.getElementById('inventory-item').value = item;
@@ -54,7 +92,6 @@ function setInventoryItem(item) {
 function addInventory() {
     const item = document.getElementById('inventory-item').value;
     const quantity = parseInt(document.getElementById('inventory-quantity').value);
-    const threshold = parseInt(document.getElementById('inventory-threshold').value);
 
     if (!item || isNaN(quantity) || quantity <= 0) {
         alert('Please enter a valid item and quantity.');
@@ -66,7 +103,7 @@ function addInventory() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ item: item, quantity: quantity, threshold: threshold })
+        body: JSON.stringify({ item: item, quantity: quantity })
     })
     .then(response => response.json())
     .then(data => {
@@ -108,13 +145,11 @@ function updateInventoryHistory() {
     fetch('/get_inventory')
     .then(response => response.json())
     .then(data => {
-        const inventoryHistoryList = document.getElementById('inventory-history-list');
-        inventoryHistoryList.innerHTML = ''; // Clear existing list
-        for (const [item, quantity] of Object.entries(data)) {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${item}: ${quantity}`;
-            inventoryHistoryList.appendChild(listItem);
-        }
+        document.getElementById('coffee-bean-quantity').textContent = data['coffee bean'] || 0;
+        document.getElementById('milk-quantity').textContent = `${data['milk'] || 0} ml`;
+        document.getElementById('green-tea-powder-quantity').textContent = data['green tea powder'] || 0;
+        document.getElementById('water-quantity').textContent = `${data['water'] || 0} ml`;
+        document.getElementById('black-tea-powder-quantity').textContent = data['black tea powder'] || 0;
     })
     .catch(error => console.error('Error:', error));
 }
@@ -142,20 +177,36 @@ function makeDrink(drinkType) {
     })
     .catch(error => console.error('Error:', error));
 
-    // Set the price and ingredients
-    document.getElementById('drink-price').value = drinkPrices[drinkType];
-    document.getElementById('drink-price-text').innerText = `${drinkPrices[drinkType]} $`;
+    // Update total amount and drink counts
+    totalAmount += drinkPrices[drinkType];
+    document.getElementById('total-amount').value = totalAmount;
+    drinkCounts[drinkType]++;
+    updateDrinkHistory();
+}
 
-    const ingredientsList = document.getElementById('drink-ingredients-list');
-    ingredientsList.innerHTML = ''; // Clear existing list
-    drinkIngredients[drinkType].forEach(ingredient => {
-        const listItem = document.createElement('li');
-        listItem.textContent = ingredient;
-        ingredientsList.appendChild(listItem);
-    });
+function updateDrinkHistory() {
+    document.getElementById('coffee-count').textContent = drinkCounts.coffee;
+    document.getElementById('latte-count').textContent = drinkCounts.latte;
+    document.getElementById('green-tea-count').textContent = drinkCounts.greenTea;
+    document.getElementById('black-tea-count').textContent = drinkCounts.blackTea;
+}
+
+function updateTotalSales() {
+    document.getElementById('credit-card-total').textContent = `${paymentTotals.creditCard}$`;
+    document.getElementById('debit-card-total').textContent = `${paymentTotals.debitCard}$`;
+    document.getElementById('cash-total').textContent = `${paymentTotals.cash}$`;
+    document.getElementById('gift-card-total').textContent = `${paymentTotals.gift}$`;
+    document.getElementById('total-sales').textContent = `${totalSales}$`;
 }
 
 // 초기화 함수
 document.addEventListener('DOMContentLoaded', () => {
     updateInventoryHistory();
+    fetch('/get_total_sales')
+        .then(response => response.json())
+        .then(data => {
+            totalSales = data.total_sales;
+            document.getElementById('total-sales').textContent = totalSales;
+        })
+        .catch(error => console.error('Error:', error));
 });

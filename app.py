@@ -17,6 +17,21 @@ payment_system.add_observer(financial_observer)
 inventory_manager = InventoryManager()
 drink_factory = DrinkFactory()
 
+total_sales = 0
+payment_totals = {
+    "creditCard": 0,
+    "debitCard": 0,
+    "cash": 0,
+    "gift": 0
+}
+
+drink_counts = {
+    "coffee": 0,
+    "latte": 0,
+    "greenTea": 0,
+    "blackTea": 0
+}
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -30,9 +45,9 @@ def make_drink():
     try:
         drink = drink_factory.create_drink(drink_type)
         result = drink.make(inventory_manager)
-        return jsonify({"message": result, "inventory": inventory_manager.get_inventory()})
+        return jsonify({"message": result, "inventory": inventory_manager.get_inventory(), "drink_counts": drink_counts})
     except ValueError as e:
-        return jsonify({"message": str(e)}), 400
+        return jsonify({"message": str(e), "success": False}), 400
 
 @app.route('/make_payment', methods=['POST'])
 @cross_origin()
@@ -40,11 +55,19 @@ def make_payment():
     data = request.json
     method = data['method']
     amount = data['amount']
-    
+    drink_counts = data['drinkCounts']
+
     try:
         payment_strategy = payment_factory.create_payment(method)
         payment_system.make_payment(amount, payment_strategy)
-        return jsonify({"message": "Payment processed successfully"})
+        global total_sales
+        total_sales += amount
+        return jsonify({
+            "message": "Payment processed successfully",
+            "total_sales": total_sales,
+            "payment_totals": payment_totals,
+            "drink_counts": drink_counts
+            })
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
 
@@ -59,9 +82,8 @@ def add_inventory():
     data = request.json
     item = data['item']
     quantity = data['quantity']
-    threshold = data.get('threshold', 0)
 
-    inventory_manager.add_item(item, quantity, threshold)
+    inventory_manager.add_item(item, quantity)
     return jsonify({"message": "Inventory added successfully", "inventory": inventory_manager.get_inventory()})
 
 @app.route('/update_inventory', methods=['POST'])
@@ -73,6 +95,11 @@ def update_inventory():
 
     inventory_manager.update_inventory(item, quantity)
     return jsonify({"message": "Inventory updated successfully", "inventory": inventory_manager.get_inventory()})
+
+@app.route('/get_total_sales', methods=['GET'])
+@cross_origin()
+def get_total_sales():
+    return jsonify({"total_sales": total_sales, "payment_totals": payment_totals, "drink_counts": drink_counts})
 
 if __name__ == '__main__':
     app.run(debug=True)

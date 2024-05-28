@@ -21,14 +21,19 @@ class GiftPayment(PaymentStrategy):
 # 결제 전략 생성 팩토리
 class PaymentFactory:
     def create_payment(self, method):
-        if method == "card":
+        method = method.lower()
+        if method == "card" or method == "creditcard":
             return CardPayment()
         elif method == "cash":
             return CashPayment()
         elif method == "gift":
             return GiftPayment()
+        elif method == "debitcard":
+            return CardPayment()  # Assuming same handling as CardPayment
         else:
             raise ValueError(f"Unknown payment method: {method}")
+
+
 
 # 싱글톤 패턴을 이용한 재무 상태 클래스
 class FinancialStatementSingleton:
