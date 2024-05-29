@@ -40,12 +40,15 @@ def index():
 @cross_origin()
 def make_drink():
     data = request.json
-    drink_type = data['drink_type']
+    drink_type = data['drink_type'].replace(" ", "").lower()
     
     try:
         drink = drink_factory.create_drink(drink_type)
         result = drink.make(inventory_manager)
-        return jsonify({"message": result, "inventory": inventory_manager.get_inventory(), "drink_counts": drink_counts})
+        if "is made" in result:
+            drink_counts[drink_type] += 1
+            return jsonify({"message": result, "inventory": inventory_manager.get_inventory(), "drink_counts": drink_counts, "success": True})
+        return jsonify({"message": result, "success": False})
     except ValueError as e:
         return jsonify({"message": str(e), "success": False}), 400
 
@@ -62,12 +65,13 @@ def make_payment():
         payment_system.make_payment(amount, payment_strategy)
         global total_sales
         total_sales += amount
+        payment_totals[method] += amount
         return jsonify({
             "message": "Payment processed successfully",
             "total_sales": total_sales,
             "payment_totals": payment_totals,
             "drink_counts": drink_counts
-            })
+        })
     except ValueError as e:
         return jsonify({"message": str(e)}), 400
 

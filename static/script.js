@@ -1,5 +1,11 @@
 let totalAmount = 0;
 let totalSales = 0;
+let paymentTotals = {
+    creditCard: 0,
+    debitCard: 0,
+    cash: 0,
+    gift: 0
+};
 let drinkCounts = {
     coffee: 0,
     latte: 0,
@@ -65,25 +71,20 @@ function makePayment() {
                 
                 // Update total sales
                 totalSales = data.total_sales;
-                document.getElementById('total-sales').textContent = totalSales;
+                document.getElementById('total-sales').textContent = `${totalSales}$`;
                 
-                // Reset total amount after payment
+                // Update payment totals
+                paymentTotals = data.payment_totals;
+                updateTotalSales();
+
+                // Reset total amount
                 totalAmount = 0;
                 document.getElementById('total-amount').value = totalAmount;
-                
-                // Increment drink counts after payment
-                const selectedDrinks = Object.keys(drinkCounts);
-                for (const drink of selectedDrinks) {
-                    drinkCounts[drink] += parseInt(document.getElementById(drink).value);
-                }
-                
-                updateDrinkHistory();
             }
         }
     })
     .catch(error => console.error('Error:', error));
 }
-
 
 function setInventoryItem(item) {
     document.getElementById('inventory-item').value = item;
@@ -116,29 +117,7 @@ function addInventory() {
 }
 
 function updateInventory() {
-    const item = document.getElementById('inventory-item').value;
-    const quantity = parseInt(document.getElementById('inventory-quantity').value);
-
-    if (!item || isNaN(quantity)) {
-        alert('Please enter a valid item and quantity.');
-        return;
-    }
-
-    fetch('/update_inventory', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ item: item, quantity: quantity })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-            updateInventoryHistory();
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    updateInventoryHistory();
 }
 
 function updateInventoryHistory() {
@@ -149,7 +128,7 @@ function updateInventoryHistory() {
         document.getElementById('milk-quantity').textContent = `${data['milk'] || 0} ml`;
         document.getElementById('green-tea-powder-quantity').textContent = data['green tea powder'] || 0;
         document.getElementById('water-quantity').textContent = `${data['water'] || 0} ml`;
-        document.getElementById('black-tea-powder-quantity').textContent = data['black tea powder'] || 0;
+        document.getElementById('black-tea-quantity').textContent = data['black tea powder'] || 0;
     })
     .catch(error => console.error('Error:', error));
 }
@@ -164,12 +143,14 @@ function makeDrink(drinkType) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.message) {
+        if (data.success) {
             alert(data.message);
             const drinkHistoryList = document.getElementById('drink-history-list');
             const listItem = document.createElement('li');
             listItem.textContent = data.message;
             drinkHistoryList.appendChild(listItem);
+        } else {
+            alert(data.message);
         }
         if (data.inventory) {
             updateInventoryHistory();
@@ -206,7 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             totalSales = data.total_sales;
-            document.getElementById('total-sales').textContent = totalSales;
+            paymentTotals = data.payment_totals;
+            drinkCounts = data.drink_counts;
+            updateTotalSales();
+            updateDrinkHistory();
         })
         .catch(error => console.error('Error:', error));
 });
+

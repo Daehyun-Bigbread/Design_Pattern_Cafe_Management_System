@@ -33,8 +33,6 @@ class PaymentFactory:
         else:
             raise ValueError(f"Unknown payment method: {method}")
 
-
-
 # 싱글톤 패턴을 이용한 재무 상태 클래스
 class FinancialStatementSingleton:
     _instance = None
