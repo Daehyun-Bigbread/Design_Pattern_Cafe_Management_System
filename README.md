@@ -76,7 +76,7 @@
 - **프론트엔드**: HTML, CSS, JavaScript
 - **디자인 패턴**: Singleton, Factory, Strategy, Observer, Chain of Responsibility
 
-### 프로그램의 디렉터리 구조
+### Program Director 구조
 
 ```
 Design_Pattern_Cafe_Management_System/
