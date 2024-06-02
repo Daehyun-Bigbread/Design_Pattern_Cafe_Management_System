@@ -1,74 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cafe Management System</title>
+    <title>카페관리 시스템 (Cafe Management System) </title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Cafe Management System</h1>
+        <h1>카페관리 시스템 (Cafe Management System) </h1>
     </header>
     <main>
         <section id="payment-section">
-            <h2>Make a Payment</h2>
+            <h2>Make a Payment (결제하기)</h2>
             <div class="button-group">
-                <button onclick="setPaymentMethod('creditCard')">Credit Card</button>
-                <button onclick="setPaymentMethod('debitCard')">Debit Card</button>
-                <button onclick="setPaymentMethod('cash')">Cash</button>
-                <button onclick="setPaymentMethod('gift')">Gift Card</button>
+                <button onclick="setPaymentMethod('creditCard')">신용카드 (Credit Card)</button>
+                <button onclick="setPaymentMethod('debitCard')">직불카드 (Debit Card)</button>
+                <button onclick="setPaymentMethod('cash')">현금 (Cash)</button>
+                <button onclick="setPaymentMethod('gift')">상품권 (Gift Card)</button>
             </div>
-            <input type="text" id="payment-method" placeholder="Payment Method" readonly>
-            <input type="number" id="payment-amount" placeholder="Amount">
-            <input type="number" id="total-amount" placeholder="Total Amount" readonly>
-            <button class="pay-button" onclick="makePayment()">Pay</button>
+            <input type="text" id="payment-method" placeholder="결제 방법 (Payment Method)" readonly>
+            <input type="number" id="payment-amount" placeholder="금액 (Amount)">
+            <input type="number" id="total-amount" placeholder="총 금액 (Total Amount)" readonly>
+            <button class="pay-button" onclick="makePayment()"> 결제 (Pay) </button>
             <div id="payment-history">
-                <h3>Payment History</h3>
+                <h3>결제 내역 (Payment History)</h3>
                 <ul id="payment-history-list"></ul>
             </div>
         </section>
         <section id="inventory-section">
-            <h2>Manage Inventory</h2>
+            <h2>재고 관리 (Manage Inventory)</h2>
             <div class="button-group">
-                <button onclick="setInventoryItem('coffee bean')">Coffee Bean</button>
-                <button onclick="setInventoryItem('milk')">Milk</button>
-                <button onclick="setInventoryItem('green tea powder')">Green Tea Powder</button>
-                <button onclick="setInventoryItem('water')">Water</button>
-                <button onclick="setInventoryItem('black tea powder')">Black Tea Powder</button>
+                <button onclick="setInventoryItem('coffee bean')">커피 원두 (Coffee Bean Pack)</button>
+                <button onclick="setInventoryItem('milk')">우유 (Milk)</button>
+                <button onclick="setInventoryItem('green tea powder')">녹차 가루 파우더 (Green Tea Powder)</button>
+                <button onclick="setInventoryItem('water')">물 (Water)</button>
+                <button onclick="setInventoryItem('black tea powder')">홍차 가루 파우더 (Black Tea Powder)</button>
             </div>
-            <input type="text" id="inventory-item" placeholder="Item" readonly>
-            <input type="number" id="inventory-quantity" placeholder="Quantity">
-            <button onclick="addInventory()">Add Inventory</button>
-            <button onclick="updateInventory()">Update Inventory</button>
+            <input type="text" id="inventory-item" placeholder="Item (품목)" readonly>
+            <input type="number" id="inventory-quantity" placeholder="Quantity (수량)">
+            <button onclick="addInventory()">재고 추가 (Add Inventory)</button>
+            <button onclick="updateInventory()">재고 업데이트 (Update Inventory)</button>
             <div id="inventory-history">
-                <h3>Inventory History</h3>
+                <h3>재고 내역 (Inventory History)</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
+                            <th>품목 (Item)</th>
+                            <th>수량 (Quantity)</th>
                         </tr>
                     </thead>
                     <tbody id="inventory-history-table">
                         <tr>
-                            <td>Coffee Bean</td>
+                            <td>커피 원두 (Coffee Bean)</td>
                             <td id="coffee-bean-quantity">0</td>
                         </tr>
                         <tr>
-                            <td>Milk</td>
+                            <td>우유 (Milk)</td>
                             <td id="milk-quantity">0 ml</td>
                         </tr>
                         <tr>
-                            <td>Green Tea Powder</td>
+                            <td>녹차 가루 파우더 (Green Tea Powder)</td>
                             <td id="green-tea-powder-quantity">0</td>
                         </tr>
                         <tr>
-                            <td>Water</td>
+                            <td>물 (Water)</td>
                             <td id="water-quantity">0 ml</td>
                         </tr>
                         <tr>
-                            <td>Black Tea Powder</td>
+                            <td>홍차 가루 파우더 (Black Tea Powder)</td>
                             <td id="black-tea-quantity">0</td>
                         </tr>
                     </tbody>
@@ -76,37 +81,37 @@
             </div>
         </section>
         <section id="drink-section">
-            <h2>Make a Drink</h2>
+            <h2>음료 제조 (Make a Drink)</h2>
             <div class="button-group">
-                <button onclick="makeDrink('coffee')">Coffee</button>
-                <button onclick="makeDrink('latte')">Latte</button>
-                <button onclick="makeDrink('greenTea')">Green Tea</button>
-                <button onclick="makeDrink('blackTea')">Black Tea</button>
+                <button onclick="makeDrink('coffee')">커피 (Coffee)</button>
+                <button onclick="makeDrink('latte')">라떼 (Latte)</button>
+                <button onclick="makeDrink('greenTea')">녹차 (Green Tea)</button>
+                <button onclick="makeDrink('blackTea')">홍차 (Black Tea)</button>
             </div>
             <div id="drink-history">
-                <h3>Drink History</h3>
+                <h3>음료 제조 내역 (Drink History)</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Drink</th>
-                            <th>Count</th>
+                            <th>음료 (Drink)</th>
+                            <th>개수 (Count)</th>
                         </tr>
                     </thead>
                     <tbody id="drink-history-table">
                         <tr>
-                            <td>Coffee</td>
+                            <td>커피 (Coffee)</td>
                             <td id="coffee-count">0</td>
                         </tr>
                         <tr>
-                            <td>Latte</td>
+                            <td>라떼 (Latte)</td>
                             <td id="latte-count">0</td>
                         </tr>
                         <tr>
-                            <td>Green Tea</td>
+                            <td>녹차 (Green Tea)</td>
                             <td id="green-tea-count">0</td>
                         </tr>
                         <tr>
-                            <td>Black Tea</td>
+                            <td>홍차 (Black Tea)</td>
                             <td id="black-tea-count">0</td>
                         </tr>
                     </tbody>
@@ -114,87 +119,87 @@
             </div>
         </section>
         <section id="total-sales-section">
-            <h2>Total Sales</h2>
+            <h2>총 판매량 (Total Sales)</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Payment Method</th>
-                        <th>Total Amount</th>
+                        <th>결제 방법 (Payment Method)</th>
+                        <th>총 금액 (Total Amount)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Credit Card</td>
+                        <td>신용카드 (Credit Card)</td>
                         <td id="credit-card-total">0$</td>
                     </tr>
                     <tr>
-                        <td>Debit Card</td>
+                        <td>직불카드 (Debit Card)</td>
                         <td id="debit-card-total">0$</td>
                     </tr>
                     <tr>
-                        <td>Cash</td>
+                        <td>현금 (Cash)</td>
                         <td id="cash-total">0$</td>
                     </tr>
                     <tr>
-                        <td>Gift Card</td>
+                        <td>상품권 (Gift Card)</td>
                         <td id="gift-card-total">0$</td>
                     </tr>
                     <tr>
-                        <td><strong>Total Sales</strong></td>
+                        <td><strong>총 판매 금액 (Total Sales)</strong></td>
                         <td id="total-sales">0$</td>
                     </tr>
                 </tbody>
             </table>
         </section>
         <section id="drink-info-section">
-            <h2>Drink Information</h2>
+            <h2>음료 정보 (Drink Information)</h2>
             <div id="drink-price-display">
-                <h3>Drink Prices</h3>
+                <h3>음료 가격 (Drink Prices)</h3>
                 <table>
                     <tr>
-                        <th>Drink</th>
-                        <th>Price</th>
+                        <th>음료 (Drink)</th>
+                        <th>가격 (Price)</th>
                     </tr>
                     <tr>
-                        <td>Coffee</td>
+                        <td>커피 (Coffee)</td>
                         <td>5$</td>
                     </tr>
                     <tr>
-                        <td>Latte</td>
+                        <td>라떼 (Latte)</td>
                         <td>6$</td>
                     </tr>
                     <tr>
-                        <td>Green Tea</td>
+                        <td>녹차 (Green Tea)</td>
                         <td>4$</td>
                     </tr>
                     <tr>
-                        <td>Black Tea</td>
+                        <td>홍차 (Black Tea)</td>
                         <td>4$</td>
                     </tr>
                 </table>
             </div>
             <div id="drink-ingredients">
-                <h3>Required Ingredients</h3>
+                <h3>필요한 재료 (Required Ingredients)</h3>
                 <table>
                     <tr>
-                        <th>Drink</th>
-                        <th>Ingredients</th>
+                        <th>음료 (Drink)</th>
+                        <th>재료 (Ingredients)</th>
                     </tr>
                     <tr>
-                        <td>Coffee</td>
-                        <td>coffee bean: 1, water: 200ml</td>
+                        <td>커피 (Coffee)</td>
+                        <td>커피 원두 팩: 1개, 물: 200ml</td>
                     </tr>
                     <tr>
-                        <td>Latte</td>
-                        <td>coffee bean: 1, milk: 100ml, water: 100ml</td>
+                        <td>라떼 (Latte)</td>
+                        <td>커피 원두 팩: 1, 우유: 100ml, 물: 100ml</td>
                     </tr>
                     <tr>
-                        <td>Green Tea</td>
-                        <td>green tea powder: 1, water: 200ml</td>
+                        <td>녹차 (Green Tea)</td>
+                        <td>녹차 가루 파우더: 1, 물: 200ml</td>
                     </tr>
                     <tr>
-                        <td>Black Tea</td>
-                        <td>black tea: 1, water: 200ml</td>
+                        <td>홍차 (Black Tea)</td>
+                        <td>홍차 가루 파우더: 1, 물: 200ml</td>
                     </tr>
                 </table>
             </div>
