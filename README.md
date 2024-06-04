@@ -70,7 +70,7 @@
 - **프론트엔드**: HTML, CSS, JavaScript
 - **디자인 패턴**: Singleton, Factory, Strategy, Observer, Chain of Responsibility
 
-### Program Director 구조
+### Program Directory 구조
 
 ```
 Design_Pattern_Cafe_Management_System/
