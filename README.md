@@ -64,12 +64,6 @@
 **사용한 디자인 패턴:**
 - **Factory Pattern**: 음료 유형에 따라 적절한 음료 객체를 생성하기 위해 사용됨.
 
-#### 5. Financial Module
-
-**사용한 디자인 패턴:**
-- **Singleton Pattern**: 재무 상태를 관리하는 클래스가 단 하나의 인스턴스만 가지도록 보장하기 위해 사용됨.
-- **Observer Pattern**: 결제가 이루어질 때 재무 상태를 업데이트하기 위해 사용됨.
-
 ### 기술 스택
 
 - **백엔드**: Python, Flask, Flask-CORS
